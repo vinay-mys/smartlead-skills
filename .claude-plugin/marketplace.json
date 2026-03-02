@@ -1,0 +1,69 @@
+{
+  "name": "smartlead-skills",
+  "display_name": "Smartlead API Skills",
+  "description": "Agent skills for the Smartlead cold email outreach platform API. Covers campaigns, leads, email accounts, analytics, inbox, webhooks, clients, deliverability, prospecting, and more.",
+  "version": "1.0.0",
+  "author": "Smartlead Skills",
+  "skills": [
+    {
+      "name": "smartlead-context",
+      "path": "skills/smartlead-context/SKILL.md",
+      "description": "Shared context: authentication, base URL, rate limits, schemas"
+    },
+    {
+      "name": "campaign-management",
+      "path": "skills/campaign-management/SKILL.md",
+      "description": "Create, configure, schedule, and manage outreach campaigns"
+    },
+    {
+      "name": "lead-management",
+      "path": "skills/lead-management/SKILL.md",
+      "description": "Add, update, pause, resume, and organize leads"
+    },
+    {
+      "name": "email-account-management",
+      "path": "skills/email-account-management/SKILL.md",
+      "description": "Set up email accounts, warmup, and sending infrastructure"
+    },
+    {
+      "name": "campaign-analytics",
+      "path": "skills/campaign-analytics/SKILL.md",
+      "description": "Campaign performance metrics and statistics"
+    },
+    {
+      "name": "master-inbox",
+      "path": "skills/master-inbox/SKILL.md",
+      "description": "Read and respond to lead conversations"
+    },
+    {
+      "name": "webhook-management",
+      "path": "skills/webhook-management/SKILL.md",
+      "description": "Set up event-driven webhooks for campaign automation"
+    },
+    {
+      "name": "client-management",
+      "path": "skills/client-management/SKILL.md",
+      "description": "Manage whitelabel clients and sub-accounts"
+    },
+    {
+      "name": "smart-delivery",
+      "path": "skills/smart-delivery/SKILL.md",
+      "description": "Email deliverability testing and monitoring"
+    },
+    {
+      "name": "smart-prospect",
+      "path": "skills/smart-prospect/SKILL.md",
+      "description": "Contact search and lead prospecting"
+    },
+    {
+      "name": "global-analytics",
+      "path": "skills/global-analytics/SKILL.md",
+      "description": "Account-wide reporting and health metrics"
+    },
+    {
+      "name": "smart-senders",
+      "path": "skills/smart-senders/SKILL.md",
+      "description": "Domain purchasing and mailbox auto-generation"
+    }
+  ]
+}
