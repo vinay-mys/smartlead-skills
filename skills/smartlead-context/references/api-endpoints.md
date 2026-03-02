@@ -20,7 +20,7 @@ All endpoints require `?api_key={API_KEY}` as a query parameter.
 | GET | `/campaigns/{id}/leads-export` | Export campaign data as CSV |
 | DELETE | `/campaigns/{id}` | Delete a campaign |
 | GET | `/campaigns/{id}/sequence-analytics` | Get sequence analytics |
-| POST | `/campaigns/{id}/subsequence` | Create subsequence |
+| POST | `/campaigns/create-subsequence` | Create subsequence |
 
 ## Lead Management
 
@@ -109,9 +109,9 @@ All endpoints require `?api_key={API_KEY}` as a query parameter.
 |---|---|---|
 | GET | `/campaigns/{id}/webhooks` | Fetch webhooks by campaign |
 | POST | `/campaigns/{id}/webhooks` | Add/update webhook |
-| DELETE | `/campaigns/{id}/webhooks/{wid}` | Delete webhook |
-| GET | `/webhooks/publish-summary` | Get publish summary |
-| POST | `/webhooks/retrigger` | Retrigger failed events |
+| DELETE | `/campaigns/{id}/webhooks` | Delete webhook |
+| GET | `/campaigns/{id}/webhooks/summary` | Get publish summary |
+| POST | `/campaigns/{id}/webhooks/retrigger-failed-events` | Retrigger failed events |
 
 ## Client Management
 

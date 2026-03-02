@@ -230,32 +230,35 @@ No request body. Permanently deletes the campaign. This action cannot be undone.
 ### 10. Create Subsequence
 
 ```
-POST /campaigns/{campaign_id}/subsequence?api_key={api_key}
+POST /campaigns/create-subsequence?api_key={api_key}
 ```
 
 **Request Body:**
 
 ```json
 {
-  "sequences": [
+  "name": "Follow-up Subsequence",
+  "parent_campaign_id": 2415561,
+  "client_id": 123,
+  "delayForNewLeads": 3,
+  "stopLeadOnParentCampaignReply": true,
+  "conditionEvents": [
     {
-      "seq_number": 1,
-      "seq_delay_details": {
-        "delay_in_days": 1
-      },
-      "subject": "Following up on our conversation",
-      "email_body": "Hi {{first_name}},\n\nThanks for your interest...",
-      "variant_label": "A"
+      "eventType": "REPLY_AN_EMAIL",
+      "eventSubType": null,
+      "categoryId": null,
+      "text": null
     }
-  ],
-  "trigger": "CLICKED_LINK",
-  "trigger_sequence_step": 1
+  ]
 }
 ```
 
-- `sequences` (array, required): Subsequence steps in the same format as the main sequence.
-- `trigger` (string, required): Event that triggers the subsequence -- `CLICKED_LINK`, `OPENED_EMAIL`, etc.
-- `trigger_sequence_step` (integer, required): Which main sequence step triggers this subsequence.
+- `name` (string, required): Name of the subsequence.
+- `parent_campaign_id` (integer, required): Parent campaign ID.
+- `client_id` (integer, optional): Client ID for whitelabel accounts.
+- `delayForNewLeads` (integer, optional): Delay in days before leads enter the subsequence.
+- `stopLeadOnParentCampaignReply` (boolean, optional): Stop leads on parent campaign reply.
+- `conditionEvents` (array, required): Event rules that trigger the subsequence.
 
 ---
 

@@ -73,7 +73,12 @@ Content-Type: application/json
 ### 3. Delete a Webhook
 
 ```
-DELETE /campaigns/{campaign_id}/webhooks/{webhook_id}?api_key={API_KEY}
+DELETE /campaigns/{campaign_id}/webhooks?api_key={API_KEY}
+Content-Type: application/json
+
+{
+  "id": 101
+}
 ```
 
 Permanently removes the webhook. This cannot be undone.
@@ -81,7 +86,7 @@ Permanently removes the webhook. This cannot be undone.
 ### 4. Get Webhook Publish Summary
 
 ```
-GET /webhooks/publish-summary?api_key={API_KEY}
+GET /campaigns/{campaign_id}/webhooks/summary?api_key={API_KEY}&fromTime={ISO_FROM}&toTime={ISO_TO}
 ```
 
 Returns aggregated delivery statistics across all webhooks: total published, succeeded, failed, and pending counts. Use for monitoring overall health.
@@ -89,12 +94,12 @@ Returns aggregated delivery statistics across all webhooks: total published, suc
 ### 5. Retrigger Failed Webhook Events
 
 ```
-POST /webhooks/retrigger?api_key={API_KEY}
+POST /campaigns/{campaign_id}/webhooks/retrigger-failed-events?api_key={API_KEY}
 Content-Type: application/json
 
 {
-  "webhook_ids": [101, 102],
-  "event_types": ["EMAIL_REPLIED"]
+  "fromTime": "2025-03-21T00:00:00.000Z",
+  "toTime": "2025-03-28T00:00:00.000Z"
 }
 ```
 
@@ -151,7 +156,7 @@ Platform-specific guidance:
 ### Step 5 -- Monitor Delivery
 
 ```
-GET /webhooks/publish-summary?api_key={API_KEY}
+GET /campaigns/{campaign_id}/webhooks/summary?api_key={API_KEY}&fromTime={ISO_FROM}&toTime={ISO_TO}
 ```
 
 Check this periodically or build a monitoring dashboard. Look for rising failure counts.
@@ -161,11 +166,11 @@ Check this periodically or build a monitoring dashboard. Look for rising failure
 If failures are detected and the root cause is resolved:
 
 ```
-POST /webhooks/retrigger?api_key={API_KEY}
+POST /campaigns/{campaign_id}/webhooks/retrigger-failed-events?api_key={API_KEY}
 
 {
-  "webhook_ids": [101],
-  "event_types": ["EMAIL_REPLIED"]
+  "fromTime": "2025-03-21T00:00:00.000Z",
+  "toTime": "2025-03-28T00:00:00.000Z"
 }
 ```
 
@@ -196,10 +201,10 @@ Fields included depend on the event type. `EMAIL_BOUNCED` payloads include a `bo
 | Setting `id` to a non-null value when creating | Causes an update to a non-existent webhook or overwrites an existing one | Always use `"id": null` for new webhooks |
 | Webhook URL is not publicly accessible | Localhost, VPN-only, or firewall-blocked URLs will silently fail | Use a publicly routable HTTPS URL; test with webhook.site first |
 | Creating one webhook for multiple event types | The API only accepts one `event_type` per webhook object | Create a separate webhook for each event type |
-| Not monitoring the publish summary | Failed deliveries go unnoticed, data is lost | Check `GET /webhooks/publish-summary` regularly or automate monitoring |
+| Not monitoring the publish summary | Failed deliveries go unnoticed, data is lost | Check `GET /campaigns/{id}/webhooks/summary` regularly or automate monitoring |
 | Using HTTP instead of HTTPS | Payloads may contain lead PII; HTTP exposes data in transit | Always use HTTPS endpoints |
 | Forgetting to set `is_active` to `true` | Webhook is created but will not fire | Explicitly include `"is_active": true` in the request body |
-| Not retriggering after fixing endpoint issues | Historical failures are never replayed | Use `POST /webhooks/retrigger` after resolving the root cause |
+| Not retriggering after fixing endpoint issues | Historical failures are never replayed | Use `POST /campaigns/{id}/webhooks/retrigger-failed-events` after resolving the root cause |
 
 ## Decision Tree
 
@@ -219,13 +224,13 @@ User wants webhook help
 |
 +-- Wants to delete a webhook?
 |   --> Confirm webhook ID
-|   --> DELETE /campaigns/{id}/webhooks/{webhook_id}
+|   --> DELETE /campaigns/{id}/webhooks with body id
 |
 +-- Wants to check delivery health?
-|   --> GET /webhooks/publish-summary
+|   --> GET /campaigns/{id}/webhooks/summary
 |
 +-- Wants to replay failed events?
-|   --> POST /webhooks/retrigger with webhook_ids and event_types
+|   --> POST /campaigns/{id}/webhooks/retrigger-failed-events with fromTime and toTime
 ```
 
 ## Multi-Campaign Webhook Setup

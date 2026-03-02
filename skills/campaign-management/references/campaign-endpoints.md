@@ -680,16 +680,10 @@ DELETE https://server.smartlead.ai/api/v1/campaigns/{campaign_id}?api_key={api_k
 **Endpoint:**
 
 ```
-POST https://server.smartlead.ai/api/v1/campaigns/{campaign_id}/subsequence?api_key={api_key}
+POST https://server.smartlead.ai/api/v1/campaigns/create-subsequence?api_key={api_key}
 ```
 
 **Method:** POST
-
-**Path Parameters:**
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `campaign_id` | integer | Yes | The ID of the parent campaign. |
 
 **Query Parameters:**
 
@@ -701,63 +695,42 @@ POST https://server.smartlead.ai/api/v1/campaigns/{campaign_id}/subsequence?api_
 
 ```json
 {
-  "sequences": [
+  "name": "Follow-up Subsequence",
+  "parent_campaign_id": 2415561,
+  "client_id": 123,
+  "delayForNewLeads": 3,
+  "stopLeadOnParentCampaignReply": true,
+  "conditionEvents": [
     {
-      "seq_number": 1,
-      "seq_delay_details": {
-        "delay_in_days": 1
-      },
-      "subject": "Glad you found that interesting, {{first_name}}",
-      "email_body": "<p>Hi {{first_name}},</p><p>I noticed you checked out the link I shared. Here's a deeper dive into how we can help {{company}}.</p><p>Would you like to hop on a quick call?</p><p>Best,<br/>{{sender_name}}</p>",
-      "variant_label": "A"
-    },
-    {
-      "seq_number": 2,
-      "seq_delay_details": {
-        "delay_in_days": 2
-      },
-      "subject": "One more resource for you, {{first_name}}",
-      "email_body": "<p>Hi {{first_name}},</p><p>I put together a short case study that's relevant to {{company}}. Happy to share it if you're interested.</p><p>Cheers,<br/>{{sender_name}}</p>",
-      "variant_label": "A"
+      "eventType": "REPLY_AN_EMAIL",
+      "eventSubType": null,
+      "categoryId": null,
+      "text": null
     }
-  ],
-  "trigger": "CLICKED_LINK",
-  "trigger_sequence_step": 1
+  ]
 }
 ```
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `sequences` | array | Yes | Subsequence steps using the same format as main sequences. |
-| `trigger` | string | Yes | Event that triggers this subsequence. Options: `CLICKED_LINK`, `OPENED_EMAIL`, `REPLIED`, `CUSTOM_EVENT`. |
-| `trigger_sequence_step` | integer | Yes | The main sequence step number (1-indexed) whose event triggers this subsequence. |
+| `name` | string | Yes | Name of the subsequence. |
+| `parent_campaign_id` | integer | Yes | Parent campaign ID. |
+| `client_id` | integer | No | Client ID for whitelabel accounts. |
+| `delayForNewLeads` | integer | No | Delay in days before new leads enter the subsequence. |
+| `stopLeadOnParentCampaignReply` | boolean | No | Stop leads when they reply in parent campaign. |
+| `conditionEvents` | array | Yes | Trigger rules for this subsequence. |
 
 **Success Response (200):**
 
 ```json
 {
   "ok": true,
-  "campaign_id": 14523,
-  "subsequence_id": 5501,
-  "trigger": "CLICKED_LINK",
-  "trigger_sequence_step": 1,
-  "sequences_saved": 2
+  "id": 12345,
+  "name": "Follow-up Subsequence",
+  "parent_campaign_id": 2415561,
+  "created_at": "2024-10-02T12:00:00.000Z"
 }
 ```
-
-**Error Responses:**
-
-| Status Code | Error | Description |
-|---|---|---|
-| 400 | `{"ok": false, "error": "sequences array is required"}` | The `sequences` field is missing or empty. |
-| 400 | `{"ok": false, "error": "trigger is required"}` | The `trigger` field is missing. |
-| 400 | `{"ok": false, "error": "Invalid trigger value"}` | The trigger value is not one of the recognized options. |
-| 400 | `{"ok": false, "error": "trigger_sequence_step does not exist in the main sequence"}` | The referenced step number does not exist in the campaign's main sequence. |
-| 404 | `{"ok": false, "error": "Campaign not found"}` | No campaign exists with the given ID. |
-| 401 | `{"ok": false, "error": "Invalid API key"}` | The provided API key is invalid or expired. |
-| 429 | `{"ok": false, "error": "Rate limit exceeded"}` | Too many requests. Wait and retry. |
-
----
 
 ## 11. Export Campaign Data as CSV
 

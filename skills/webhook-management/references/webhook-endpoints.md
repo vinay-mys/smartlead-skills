@@ -239,291 +239,98 @@ curl -X POST \
 
 ## 3. Delete a Webhook
 
-Permanently removes a webhook from a campaign. This action cannot be undone.
+Deletes a webhook from a campaign.
 
 ### Request
 
 ```
-DELETE /campaigns/{campaign_id}/webhooks/{webhook_id}?api_key={API_KEY}
+DELETE /campaigns/{campaign_id}/webhooks?api_key={API_KEY}
+Content-Type: application/json
+
+{
+  "id": 101
+}
 ```
 
 ### Path Parameters
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `campaign_id` | integer | Yes | The numeric ID of the campaign |
-| `webhook_id` | integer | Yes | The numeric ID of the webhook to delete |
+| `campaign_id` | integer | Yes | Campaign ID |
 
 ### Query Parameters
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `api_key` | string | Yes | Your Smartlead API key |
-
-### Example Request
-
-```bash
-curl -X DELETE \
-  "https://server.smartlead.ai/api/v1/campaigns/45678/webhooks/101?api_key=SL_abc123def456"
-```
-
-### Example Response (200 OK)
-
-```json
-{
-  "ok": true,
-  "message": "Webhook 101 deleted successfully"
-}
-```
-
-### Example: Delete All Webhooks for a Campaign
-
-To remove every webhook from a campaign, first list them, then delete each one:
-
-```bash
-# Step 1: Fetch all webhooks
-curl -X GET \
-  "https://server.smartlead.ai/api/v1/campaigns/45678/webhooks?api_key=SL_abc123def456"
-
-# Step 2: Delete each webhook by ID (assuming IDs 101, 102, 103 were returned)
-curl -X DELETE \
-  "https://server.smartlead.ai/api/v1/campaigns/45678/webhooks/101?api_key=SL_abc123def456"
-
-curl -X DELETE \
-  "https://server.smartlead.ai/api/v1/campaigns/45678/webhooks/102?api_key=SL_abc123def456"
-
-curl -X DELETE \
-  "https://server.smartlead.ai/api/v1/campaigns/45678/webhooks/103?api_key=SL_abc123def456"
-```
-
-### Error Responses
-
-| Status | Cause |
-|---|---|
-| `401 Unauthorized` | Invalid or missing API key |
-| `404 Not Found` | Campaign ID or webhook ID does not exist |
-
-### Important Notes
-
-- Deletion is permanent. There is no soft-delete or trash.
-- Deleting a webhook does not retroactively remove any payloads already delivered to the target URL.
-- If you want to temporarily stop a webhook without deleting it, update it with `"is_active": false` instead.
-
----
-
-## 4. Get Webhook Publish Summary
-
-Returns aggregated delivery statistics across all webhooks in your account. Use this to monitor overall webhook health and detect delivery failures.
-
-### Request
-
-```
-GET /webhooks/publish-summary?api_key={API_KEY}
-```
-
-### Query Parameters
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `api_key` | string | Yes | Your Smartlead API key |
-
-### Example Request
-
-```bash
-curl -X GET \
-  "https://server.smartlead.ai/api/v1/webhooks/publish-summary?api_key=SL_abc123def456"
-```
-
-### Example Response (200 OK)
-
-```json
-{
-  "total_published": 15230,
-  "total_succeeded": 14980,
-  "total_failed": 200,
-  "total_pending": 50,
-  "failure_rate_percent": 1.31,
-  "summary_by_event_type": [
-    {
-      "event_type": "EMAIL_SENT",
-      "published": 8500,
-      "succeeded": 8490,
-      "failed": 10,
-      "pending": 0
-    },
-    {
-      "event_type": "EMAIL_OPENED",
-      "published": 4200,
-      "succeeded": 4100,
-      "failed": 80,
-      "pending": 20
-    },
-    {
-      "event_type": "EMAIL_REPLIED",
-      "published": 1200,
-      "succeeded": 1150,
-      "failed": 30,
-      "pending": 20
-    },
-    {
-      "event_type": "EMAIL_CLICKED",
-      "published": 830,
-      "succeeded": 780,
-      "failed": 40,
-      "pending": 10
-    },
-    {
-      "event_type": "EMAIL_BOUNCED",
-      "published": 500,
-      "succeeded": 460,
-      "failed": 40,
-      "pending": 0
-    }
-  ]
-}
-```
-
-### Response Fields
-
-| Field | Type | Description |
-|---|---|---|
-| `total_published` | integer | Total number of webhook events that the system attempted to deliver |
-| `total_succeeded` | integer | Events that received a 2xx response from the target URL |
-| `total_failed` | integer | Events that failed delivery (timeout, non-2xx response, DNS failure) |
-| `total_pending` | integer | Events queued for delivery but not yet attempted |
-| `failure_rate_percent` | float | `(total_failed / total_published) * 100` |
-| `summary_by_event_type` | array | Breakdown of the above metrics per event type |
-
-### Error Responses
-
-| Status | Cause |
-|---|---|
-| `401 Unauthorized` | Invalid or missing API key |
-
-### Important Notes
-
-- This endpoint returns account-wide statistics, not per-campaign.
-- A high `failure_rate_percent` (above 5%) warrants immediate investigation: check that target URLs are reachable and returning 200 responses.
-- `total_pending` events are in the delivery queue and will be attempted shortly. A consistently high pending count may indicate rate-limiting on the receiving end.
-
----
-
-## 5. Retrigger Failed Webhook Events
-
-Replays webhook events that previously failed delivery. Use this after resolving issues with the receiving endpoint (e.g., server was down, URL was changed, firewall rules were updated).
-
-### Request
-
-```
-POST /webhooks/retrigger?api_key={API_KEY}
-Content-Type: application/json
-```
-
-### Query Parameters
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `api_key` | string | Yes | Your Smartlead API key |
+| `api_key` | string | Yes | Smartlead API key |
 
 ### Request Body
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `webhook_ids` | array of integers | Yes | List of webhook IDs whose failed events should be replayed |
-| `event_types` | array of strings | No | Filter retriggering to specific event types. If omitted, all failed events for the listed webhooks are retriggered. |
+| `id` | integer | Yes | Webhook ID to delete |
 
-### Example: Retrigger All Failed Events for Specific Webhooks
+### Example Request
 
 ```bash
-curl -X POST \
-  "https://server.smartlead.ai/api/v1/webhooks/retrigger?api_key=SL_abc123def456" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "webhook_ids": [101, 102, 103]
-  }'
+curl -X DELETE   "https://server.smartlead.ai/api/v1/campaigns/45678/webhooks?api_key=SL_abc123def456"   -H "Content-Type: application/json"   -d '{"id": 101}'
 ```
 
-### Example Response (200 OK)
+## 4. Get Webhook Publish Summary
 
-```json
+Returns webhook publish summary for a campaign within a time window.
+
+### Request
+
+```
+GET /campaigns/{campaign_id}/webhooks/summary?api_key={API_KEY}&fromTime={ISO_FROM}&toTime={ISO_TO}
+```
+
+### Required Query Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `api_key` | string | Yes | Smartlead API key |
+| `fromTime` | string (ISO 8601) | Yes | Start time |
+| `toTime` | string (ISO 8601) | Yes | End time |
+
+### Example Request
+
+```bash
+curl -X GET   "https://server.smartlead.ai/api/v1/campaigns/45678/webhooks/summary?api_key=SL_abc123def456&fromTime=2025-03-21T00:00:00.000Z&toTime=2025-03-28T00:00:00.000Z"
+```
+
+## 5. Retrigger Failed Webhook Events
+
+Replays failed webhook events for a campaign within a time window.
+
+### Request
+
+```
+POST /campaigns/{campaign_id}/webhooks/retrigger-failed-events?api_key={API_KEY}
+Content-Type: application/json
+
 {
-  "ok": true,
-  "retriggered_count": 47,
-  "webhook_ids": [101, 102, 103],
-  "event_types": ["ALL"],
-  "message": "47 failed events have been queued for redelivery"
+  "fromTime": "2025-03-21T00:00:00.000Z",
+  "toTime": "2025-03-28T00:00:00.000Z"
 }
 ```
 
-### Example: Retrigger Only Specific Event Types
+### Request Body
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `fromTime` | string (ISO 8601) | Yes | Start time |
+| `toTime` | string (ISO 8601) | Yes | End time |
+
+### Example Request
 
 ```bash
-curl -X POST \
-  "https://server.smartlead.ai/api/v1/webhooks/retrigger?api_key=SL_abc123def456" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "webhook_ids": [101],
-    "event_types": ["EMAIL_REPLIED", "EMAIL_BOUNCED"]
+curl -X POST   "https://server.smartlead.ai/api/v1/campaigns/45678/webhooks/retrigger-failed-events?api_key=SL_abc123def456"   -H "Content-Type: application/json"   -d '{
+    "fromTime": "2025-03-21T00:00:00.000Z",
+    "toTime": "2025-03-28T00:00:00.000Z"
   }'
 ```
-
-### Example Response (200 OK)
-
-```json
-{
-  "ok": true,
-  "retriggered_count": 12,
-  "webhook_ids": [101],
-  "event_types": ["EMAIL_REPLIED", "EMAIL_BOUNCED"],
-  "message": "12 failed events have been queued for redelivery"
-}
-```
-
-### Example: Full Recovery Workflow
-
-When you discover failures via the publish summary, follow this sequence:
-
-```bash
-# Step 1: Check the publish summary to identify failures
-curl -X GET \
-  "https://server.smartlead.ai/api/v1/webhooks/publish-summary?api_key=SL_abc123def456"
-
-# Step 2: List webhooks for the affected campaign to get webhook IDs
-curl -X GET \
-  "https://server.smartlead.ai/api/v1/campaigns/45678/webhooks?api_key=SL_abc123def456"
-
-# Step 3: (Fix the root cause -- e.g., restart your server, update firewall rules)
-
-# Step 4: Retrigger failed events for the affected webhooks
-curl -X POST \
-  "https://server.smartlead.ai/api/v1/webhooks/retrigger?api_key=SL_abc123def456" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "webhook_ids": [101, 102],
-    "event_types": ["EMAIL_REPLIED"]
-  }'
-
-# Step 5: Verify by checking the publish summary again
-curl -X GET \
-  "https://server.smartlead.ai/api/v1/webhooks/publish-summary?api_key=SL_abc123def456"
-```
-
-### Error Responses
-
-| Status | Cause |
-|---|---|
-| `400 Bad Request` | Missing `webhook_ids`, empty array, or invalid event type string |
-| `401 Unauthorized` | Invalid or missing API key |
-| `404 Not Found` | One or more webhook IDs do not exist |
-
-### Important Notes
-
-- Retriggered events are placed back in the delivery queue; they are not delivered instantaneously.
-- If the receiving endpoint is still down, the retriggered events will fail again. Always confirm the endpoint is healthy before retriggering.
-- There is no limit on how many times you can retrigger, but repeated failures may indicate a deeper integration issue.
-- The `retriggered_count` reflects only events that were in a failed state. If there are no failures for the specified webhooks and event types, the count will be `0`.
-
----
 
 ## Webhook Payload Examples by Event Type
 
